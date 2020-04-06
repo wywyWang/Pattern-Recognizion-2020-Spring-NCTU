@@ -1,11 +1,12 @@
 import numpy as np
+import utils
 
 def computeGaussian(value, mean, var):
     return np.log(1.0 / (np.sqrt(2.0 * np.pi * var))) - ((value - mean) ** 2.0 / (2.0 * var))
 
 
-def checkResult(probability, answer):
-    prediction = np.argmin(probability)
+def checkResult(prediction, answer):
+    # prediction = np.argmin(probability)
     # print("Prediction: ", prediction, ", Ans: ", answer)
     if prediction == answer:
         return 0
@@ -51,9 +52,11 @@ def train(train_x, train_y, class_num):
 
 
 def test(test_x, test_y, prior, train_mean, train_var, class_num):
-    print("test_x shape : ".format(test_x.shape))
-    print("test_y shape : ".format(test_y.shape))
+    """This function is testing stage of naive-bayes classifier."""
+    print("test_x shape : {}".format(test_x.shape))
+    print("test_y shape : {}".format(test_y.shape))
     error = 0
+    predict_list = []
     for data_idx in range(test_x.shape[0]):
         probability = np.zeros((class_num), dtype = float)
         for label in range(class_num):
@@ -62,6 +65,11 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num):
                 predict_value = computeGaussian(test_x[data_idx][feature_idx], train_mean[label][feature_idx], train_var[label][feature_idx])
                 probability[label] += predict_value
         probability = normalization(probability, class_num)
-        error += checkResult(probability, test_y[data_idx])
-        # print(probability)
-    print("Error : {}. Accuracy {}".format(error, (test_x.shape[0] - error) / test_x.shape[0]))
+        prediction = np.argmin(probability)
+        predict_list.append(prediction)
+        error += checkResult(prediction, test_y[data_idx])
+
+    accuracy = (test_x.shape[0] - error) / test_x.shape[0]
+    print("Error : {}. Accuracy {}".format(error, accuracy))
+    utils.computeComfusionMatrix(predict_list, test_y, class_num)
+    return accuracy
