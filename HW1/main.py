@@ -1,11 +1,18 @@
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 import NBC
 import LC
 
 def readData():
     # Three classes
     iris = pd.read_csv('source/iris.data', header=None)
+    # Plot feature realtions
+    iris_plot = iris.copy()
+    iris_plot.columns = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
+    sns_plot = sns.pairplot(iris_plot, hue='class', palette='husl', markers=['o', 's', 'D'])
+    sns_plot.savefig('plotting/iris_features.png')
     iris_train, iris_test = splitTrainTest(iris)
     iris_train_x = iris_train.iloc[:, 0:4].copy()
     iris_train_y = iris_train.iloc[:, 4:].copy()[4].map({
@@ -21,6 +28,11 @@ def readData():
     })
 
     wine = pd.read_csv('source/wine.data', header=None)
+    # Plot feature realtions
+    wine_plot = wine.copy()
+    # wine_plot.columns = ['class', 'Alcohol', 'Malic acid', 'Ash', 'Alcalinity of ash', 'Magnesium', 'Total phenols', 'Flavanoids', 'Nonflavanoid phenols', 'Proanthocyanins', 'Color intensity', 'Hue', 'OD280/OD315 of diluted wines', 'Proline']
+    # sns_plot = sns.pairplot(wine_plot, hue='class', palette='husl', markers=['o', 's', 'D'])
+    # sns_plot.savefig('plotting/wine_features.png')
     wine_train, wine_test = splitTrainTest(wine)
     wine_train_x = wine_train.iloc[:, 1:].copy()
     wine_train_y = wine_train.iloc[:, 0:1].copy()[0].apply(lambda x: x-1)
@@ -53,7 +65,6 @@ def readData():
         'g': 1,
         'b': 0
     })
-
     return iris_train_x, iris_train_y, iris_test_x, iris_test_y, \
            ionosphere_train_x, ionosphere_train_y, ionosphere_test_x, ionosphere_test_y, \
            breast_train_x, breast_train_y, breast_test_x, breast_test_y, \
@@ -61,6 +72,7 @@ def readData():
 
 
 def splitTrainTest(data):
+    """Split data into training set and testing set, proportional is 0.7."""
     mask = np.random.rand(len(data)) < 0.7
     train = data[mask].reset_index(drop=True)
     test = data[~mask].reset_index(drop=True)
@@ -69,10 +81,14 @@ def splitTrainTest(data):
     return train, test
 
 
-def crossValidation(train_x, train_y, class_num, K=3):
+def crossValidation(train_x, train_y, class_num, filename, K=3):
+    """Doing k-fold cross validation, default K is 3."""
     divided = int(len(train_x) / K)
     overall_acc = 0
+    total_PD = []
+    total_FA = []
     for fold in range(K):
+        print()
         print("Now fold is {}".format(fold))
         # Compute start and end index
         start = divided * fold
@@ -84,9 +100,32 @@ def crossValidation(train_x, train_y, class_num, K=3):
         validation_y = train_y[start:end].values
         print(validation_x.shape)
         print(training_x.shape)
-        prior, train_mean, train_var = NBC.train(training_x, training_y, 3)
-        overall_acc += NBC.test(validation_x, validation_y, prior, train_mean, train_var, 3)
+        prior, train_mean, train_var = NBC.train(training_x, training_y, class_num)
+        if class_num == 2:
+            acc, FA, PD = NBC.test(validation_x, validation_y, prior, train_mean, train_var, class_num, False)
+            total_FA.append(np.array(FA))
+            total_PD.append(np.array(PD))
+        else:
+            acc = NBC.test(validation_x, validation_y, prior, train_mean, train_var, class_num)
+        overall_acc += acc
     print("Overall accuracy: {}".format(overall_acc / K))
+    # Plot ROC curve if it is binary classification.
+    if class_num == 2:
+        total_FA = np.array(total_FA)
+        total_PD = np.array(total_PD)
+        # print("total FA = {}".format(total_FA.shape))
+        # print(total_FA)
+        FA_mean = np.mean(total_FA, axis=0)
+        PD_mean = np.mean(total_PD, axis=0)
+        FA_var = np.var(total_FA, axis=0)
+        PD_var = np.var(total_PD, axis=0)
+        # Plot ROC curve of validation data
+        fig = plt.figure()
+        # plt.plot(FA_mean, PD_mean, color = 'black')
+        plt.errorbar(FA_mean, PD_mean, yerr=PD_var, uplims=True, lolims=True)
+        plt.xlabel('FA')
+        plt.ylabel('PD')
+        fig.savefig('plotting/' + filename + '_roc_CV.png')
 
 
 if __name__ == "__main__":
@@ -96,16 +135,21 @@ if __name__ == "__main__":
         breast_train_x, breast_train_y, breast_test_x, breast_test_y, \
         wine_train_x, wine_train_y, wine_test_x, wine_test_y = readData()
 
+    class_num = 3
     # Run Naive-Bayes Classifier
-    crossValidation(iris_train_x, iris_train_y, 3, 5)
-    prior, train_mean, train_var = NBC.train(iris_train_x.values, iris_train_y.values, 3)
-    irirs_acc = NBC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_var, 3)
+    # crossValidation(iris_train_x, iris_train_y, 3, 10)
+    # prior, train_mean, train_var = NBC.train(iris_train_x.values, iris_train_y.values, 3)
+    # irirs_acc = NBC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_var, 3)
 
     # prior, train_mean, train_var = NBC.train(wine_train_x.values, wine_train_y.values, 3)
     # NBC.test(wine_test_x.values, wine_test_y.values, prior, train_mean, train_var, 3)
 
-    # prior, train_mean, train_var = NBC.train(ionosphere_train_x.values, ionosphere_train_y.values, 2)
-    # NBC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_var, 2)
+    class_num = 2
+    crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 5)
+    prior, train_mean, train_var = NBC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
+    acc = NBC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_var, class_num, 'ionosphere', True)
 
-    # prior, train_mean, train_var = NBC.train(breast_train_x.values, breast_train_y.values, 2)
-    # NBC.test(breast_test_x.values, breast_test_y.values, prior, train_mean, train_var, 2)
+    # Run Naive-Bayes Classifier
+    # crossValidation(breast_train_x, breast_train_y, class_num, 'breast', 5)
+    # prior, train_mean, train_var = NBC.train(breast_train_x.values, breast_train_y.values, class_num)
+    # acc = NBC.test(breast_test_x.values, breast_test_y.values, prior, train_mean, train_var, class_num, 'breast', True)

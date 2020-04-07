@@ -1,7 +1,9 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import utils
 
 def computeGaussian(value, mean, var):
+    """This function is compute log of Gaussian distribution, because original multiply values will become smaller and smaller."""
     return np.log(1.0 / (np.sqrt(2.0 * np.pi * var))) - ((value - mean) ** 2.0 / (2.0 * var))
 
 
@@ -15,6 +17,7 @@ def checkResult(prediction, answer):
 
 
 def normalization(probability, class_num):
+    """This function is used to normalize the probability."""
     temp = 0
     for j in range(class_num):
         temp += probability[j]
@@ -24,6 +27,7 @@ def normalization(probability, class_num):
 
 
 def train(train_x, train_y, class_num):
+    """This function is training stage of naive-bayes classifier."""
     print("train x shape : {}".format(train_x.shape))
     print("train y shape : {}".format(train_y.shape))
     prior = np.zeros((class_num), dtype = float)
@@ -44,19 +48,19 @@ def train(train_x, train_y, class_num):
             train_var[label][feature_idx] = float(train_square[label][feature_idx] / prior[label]) - float(train_mean[label][feature_idx] ** 2)
             # psuedo count for variance
             if train_var[label][feature_idx] == 0:
-                print("HI")
-                train_var[label][feature_idx] = 1e-4
+                train_var[label][feature_idx] = 1e-6
     prior = prior / train_x.shape[0]
     prior = np.log(prior)
     return prior, train_mean, train_var
 
 
-def test(test_x, test_y, prior, train_mean, train_var, class_num):
+def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, testing=False):
     """This function is testing stage of naive-bayes classifier."""
     print("test_x shape : {}".format(test_x.shape))
     print("test_y shape : {}".format(test_y.shape))
     error = 0
     predict_list = []
+    total_probability = [0 for _ in range(test_x.shape[0])]
     for data_idx in range(test_x.shape[0]):
         probability = np.zeros((class_num), dtype = float)
         for label in range(class_num):
@@ -65,11 +69,34 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num):
                 predict_value = computeGaussian(test_x[data_idx][feature_idx], train_mean[label][feature_idx], train_var[label][feature_idx])
                 probability[label] += predict_value
         probability = normalization(probability, class_num)
+        total_probability[data_idx] = probability[1]
         prediction = np.argmin(probability)
         predict_list.append(prediction)
         error += checkResult(prediction, test_y[data_idx])
-
     accuracy = (test_x.shape[0] - error) / test_x.shape[0]
     print("Error : {}. Accuracy {}".format(error, accuracy))
-    utils.computeComfusionMatrix(predict_list, test_y, class_num)
-    return accuracy
+
+    #Plot ROC curve
+    FA_PD = []
+    if class_num == 2:
+        slices = 10
+        low = min(total_probability)
+        high = max(total_probability)
+        step = (abs(low) + abs(high)) / slices
+        print("STEP IS {}".format(step))
+        thresholds = np.arange(low-step, high+step, step)
+        for threshold in thresholds:
+            FA_PD.append(utils.computeConfusionMatrix(total_probability, test_y, class_num, threshold))
+        FA = [row[1] for row in FA_PD]
+        PD = [row[0] for row in FA_PD]
+        if testing is True:
+            # Plot ROC curve of testing data
+            fig = plt.figure()
+            plt.plot(FA, PD)
+            plt.xlabel('FA')
+            plt.ylabel('PD')
+            fig.savefig('plotting/' + filename + '_roc_test.png')
+        return accuracy, FA, PD
+    else:
+        utils.computeConfusionMatrix(total_probability, test_y, class_num)
+        return accuracy
