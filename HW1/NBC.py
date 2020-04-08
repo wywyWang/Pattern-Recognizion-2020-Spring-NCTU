@@ -61,6 +61,7 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, test
     error = 0
     predict_list = []
     total_probability = [0 for _ in range(test_x.shape[0])]
+    multi_class = []
     for data_idx in range(test_x.shape[0]):
         probability = np.zeros((class_num), dtype = float)
         for label in range(class_num):
@@ -70,6 +71,7 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, test
                 probability[label] += predict_value
         probability = normalization(probability, class_num)
         total_probability[data_idx] = probability[1]
+        multi_class.append(probability)
         prediction = np.argmin(probability)
         predict_list.append(prediction)
         error += checkResult(prediction, test_y[data_idx])
@@ -105,5 +107,5 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, test
             fig.savefig('plotting/' + filename + '_roc_test.png')
         return accuracy, FA_x, PD_interp
     else:
-        utils.computeConfusionMatrix(total_probability, test_y, class_num)
+        utils.computeConfusionMatrix(multi_class, test_y, class_num)
         return accuracy
