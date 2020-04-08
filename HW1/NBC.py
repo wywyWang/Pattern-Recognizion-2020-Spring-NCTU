@@ -28,8 +28,8 @@ def normalization(probability, class_num):
 
 def train(train_x, train_y, class_num):
     """This function is training stage of naive-bayes classifier."""
-    print("train x shape : {}".format(train_x.shape))
-    print("train y shape : {}".format(train_y.shape))
+    # print("train x shape : {}".format(train_x.shape))
+    # print("train y shape : {}".format(train_y.shape))
     prior = np.zeros((class_num), dtype = float)
     train_square = np.zeros((class_num, train_x.shape[1]), dtype = float)
     train_mean = np.zeros((class_num, train_x.shape[1]), dtype = float)
@@ -56,8 +56,8 @@ def train(train_x, train_y, class_num):
 
 def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, testing=False):
     """This function is testing stage of naive-bayes classifier."""
-    print("test_x shape : {}".format(test_x.shape))
-    print("test_y shape : {}".format(test_y.shape))
+    # print("test_x shape : {}".format(test_x.shape))
+    # print("test_y shape : {}".format(test_y.shape))
     error = 0
     predict_list = []
     total_probability = [0 for _ in range(test_x.shape[0])]
@@ -79,24 +79,31 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, test
     #Plot ROC curve
     FA_PD = []
     if class_num == 2:
-        slices = 10
+        slices = 20
         low = min(total_probability)
         high = max(total_probability)
         step = (abs(low) + abs(high)) / slices
-        print("STEP IS {}".format(step))
         thresholds = np.arange(low-step, high+step, step)
         for threshold in thresholds:
             FA_PD.append(utils.computeConfusionMatrix(total_probability, test_y, class_num, threshold))
-        FA = [row[1] for row in FA_PD]
-        PD = [row[0] for row in FA_PD]
+        FA = [row[0] for row in FA_PD]
+        PD = [row[1] for row in FA_PD]
+        FA_x = np.linspace(0.0, 1.0, slices)
+        PD_interp = np.interp(FA_x, FA, PD)
+        # print("FA : {}".format(FA))
+        # print("PD : {}".format(PD))
+        # print("FA : {}".format(FA[::-1]))
+        # print("PD : {}".format(PD[::-1]))
+        # print(PD_interp)
+
         if testing is True:
             # Plot ROC curve of testing data
             fig = plt.figure()
-            plt.plot(FA, PD)
+            plt.plot(FA_x, PD_interp)
             plt.xlabel('FA')
             plt.ylabel('PD')
             fig.savefig('plotting/' + filename + '_roc_test.png')
-        return accuracy, FA, PD
+        return accuracy, FA_x, PD_interp
     else:
         utils.computeConfusionMatrix(total_probability, test_y, class_num)
         return accuracy

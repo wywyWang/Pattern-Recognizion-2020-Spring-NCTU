@@ -6,16 +6,18 @@ def computeConfusionMatrix(predict, answer, class_num, threshold=None):
     for data_idx in range(len(predict)):
         if class_num == 2:
             if predict[data_idx] <= threshold:
-                prediction = 0
-            else:
                 prediction = 1
+            else:
+                prediction = 0
             confusion_matrix[prediction][answer[data_idx]] += 1           
         else:
             prediction = np.argmin(predict[data_idx])
             confusion_matrix[prediction][answer[data_idx]] += 1
     if class_num == 2:
+        PD = confusion_matrix[1][1] / (confusion_matrix[0][1] + confusion_matrix[1][1]) if (confusion_matrix[0][1] + confusion_matrix[1][1]) != 0 else 0
         FA = confusion_matrix[1][0] / (confusion_matrix[1][0] + confusion_matrix[0][0]) if (confusion_matrix[1][0] + confusion_matrix[0][0]) != 0 else 0
-        PD = confusion_matrix[1][1] / (confusion_matrix[1][1] + confusion_matrix[0][1]) if (confusion_matrix[1][1] + confusion_matrix[0][1]) != 0 else 0
+        print("Confusion matrix:")
+        print(confusion_matrix)
         return [FA, PD]
     print("Confusion matrix:")
     print(confusion_matrix)
