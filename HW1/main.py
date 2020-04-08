@@ -82,7 +82,7 @@ def splitTrainTest(data):
     return train, test
 
 
-def crossValidation(train_x, train_y, class_num, filename, K=3):
+def crossValidation(train_x, train_y, class_num, filename, model_name, K=3):
     """Doing k-fold cross validation, default K is 3."""
     divided = int(len(train_x) / K)
     overall_acc = 0
@@ -98,13 +98,20 @@ def crossValidation(train_x, train_y, class_num, filename, K=3):
         training_y = np.concatenate((train_y[:start], train_y[end:]))
         validation_x = train_x[start:end].values
         validation_y = train_y[start:end].values
-        prior, train_mean, train_var = NBC.train(training_x, training_y, class_num)
-        if class_num == 2:
-            acc, FA, PD = NBC.test(validation_x, validation_y, prior, train_mean, train_var, class_num, filename, False)
+        #Choose model
+        if model_name == 'NBC':
+            prior, train_mean, train_var = NBC.train(training_x, training_y, class_num)
+            if class_num == 2:
+                acc, FA, PD = NBC.test(validation_x, validation_y, prior, train_mean, train_var, class_num, filename, model_name, False)
+                total_FA.append(np.array(FA))
+                total_PD.append(np.array(PD))
+            else:
+                acc = NBC.test(validation_x, validation_y, prior, train_mean, train_var, class_num, filename, model_name, False)
+        elif model_name == 'PC':
+            train_weight = PC.train(training_x, training_y, class_num)
+            acc, FA, PD = PC.test(validation_x, validation_y, train_weight, class_num, filename, model_name, False)
             total_FA.append(np.array(FA))
             total_PD.append(np.array(PD))
-        else:
-            acc = NBC.test(validation_x, validation_y, prior, train_mean, train_var, class_num, filename, False)
         overall_acc += acc
     print("Overall accuracy: {}".format(overall_acc / K))
     # Plot ROC curve if it is binary classification.
@@ -122,7 +129,7 @@ def crossValidation(train_x, train_y, class_num, filename, K=3):
         # plt.ylim(0, 1)
         plt.xlabel('FA')
         plt.ylabel('PD')
-        fig.savefig('plotting/' + filename + '_roc_CV.png')
+        fig.savefig('plotting/' + filename + '_' + model_name + '_roc_CV.png')
 
 
 if __name__ == "__main__":
@@ -132,26 +139,28 @@ if __name__ == "__main__":
         breast_train_x, breast_train_y, breast_test_x, breast_test_y, \
         wine_train_x, wine_train_y, wine_test_x, wine_test_y = readData()
 
+    K = 10
     class_num = 3
     # Run Naive-Bayes Classifier
-    # crossValidation(iris_train_x, iris_train_y, class_num, 'iris', 10)
+    # crossValidation(iris_train_x, iris_train_y, class_num, 'iris', K)
     # prior, train_mean, train_var = NBC.train(iris_train_x.values, iris_train_y.values, class_num)
     # irirs_acc = NBC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_var, class_num, 'iris', True)
     # prior, train_mean, train_var = BC.train(iris_train_x.values, iris_train_y.values, class_num)
     # irirs_acc = BC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_var, class_num, 'iris', True)
 
-    # crossValidation(wine_train_x, wine_train_y, class_num, 'wine', 10)
+    # crossValidation(wine_train_x, wine_train_y, class_num, 'wine', K)
     # prior, train_mean, train_var = NBC.train(wine_train_x.values, wine_train_y.values, class_num)
     # NBC.test(wine_test_x.values, wine_test_y.values, prior, train_mean, train_var, class_num, 'wine', True)
 
     class_num = 2
-    # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 10)
+    # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', K)
     # prior, train_mean, train_var = NBC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
     # acc = NBC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_var, class_num, 'ionosphere', True)
 
     # Run Naive-Bayes Classifier
-    # crossValidation(breast_train_x, breast_train_y, class_num, 'breast', 10)
+    # crossValidation(breast_train_x, breast_train_y, class_num, 'breast', 'NBC', K)
     # prior, train_mean, train_var = NBC.train(breast_train_x.values, breast_train_y.values, class_num)
-    # acc = NBC.test(breast_test_x.values, breast_test_y.values, prior, train_mean, train_var, class_num, 'breast', True)
+    # acc = NBC.test(breast_test_x.values, breast_test_y.values, prior, train_mean, train_var, class_num, 'breast', 'NBC', True)
+    crossValidation(breast_train_x, breast_train_y, class_num, 'breast', 'PC', K)
     train_weight = PC.train(breast_train_x.values, breast_train_y.values, class_num)
-    acc = PC.test(breast_test_x.values, breast_test_y.values, train_weight, class_num, 'breast', True)
+    acc = PC.test(breast_test_x.values, breast_test_y.values, train_weight, class_num, 'breast', 'PC', True)

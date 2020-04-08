@@ -54,7 +54,7 @@ def train(train_x, train_y, class_num):
     return prior, train_mean, train_var
 
 
-def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, testing=False):
+def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, model_name, testing=False):
     """This function is testing stage of naive-bayes classifier."""
     # print("test_x shape : {}".format(test_x.shape))
     # print("test_y shape : {}".format(test_y.shape))
@@ -87,9 +87,11 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, test
         step = (abs(low) + abs(high)) / slices
         thresholds = np.arange(low-step, high+step, step)
         for threshold in thresholds:
-            FA_PD.append(utils.computeConfusionMatrix(total_probability, test_y, class_num, threshold))
+            FA_PD.append(utils.computeConfusionMatrix(total_probability, test_y, class_num, model_name, threshold))
         FA = [row[0] for row in FA_PD]
         PD = [row[1] for row in FA_PD]
+        print("PD = {}".format(PD))
+        print("FA = {}".format(FA))
         FA_x = np.linspace(0.0, 1.0, slices)
         PD_interp = np.interp(FA_x, FA, PD)
         # Plot ROC curve of testing data
@@ -98,8 +100,8 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, test
             plt.plot(FA_x, PD_interp)
             plt.xlabel('FA')
             plt.ylabel('PD')
-            fig.savefig('plotting/' + filename + '_roc_test.png')
+            fig.savefig('plotting/' + filename + '_' + model_name + '_roc_testing.png')
         return accuracy, FA_x, PD_interp
     else:
-        utils.computeConfusionMatrix(multi_class, test_y, class_num)
+        utils.computeConfusionMatrix(multi_class, test_y, class_num, model_name)
         return accuracy
