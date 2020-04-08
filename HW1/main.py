@@ -2,17 +2,18 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import NBC
-import LC
+import bayesian_classifier as BC
+import naive_bayes_classifier as NBC
+import pocket_classifier as PC
 
 def readData():
     # Three classes
-    iris = pd.read_csv('source/iris.data', header=None)
+    iris = pd.read_csv('source/iris.data', header=None).sample(frac=1).reset_index(drop=True)
     # Plot feature realtions
-    iris_plot = iris.copy()
-    iris_plot.columns = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
-    sns_plot = sns.pairplot(iris_plot, hue='class', palette='husl', markers=['o', 's', 'D'])
-    sns_plot.savefig('plotting/iris_features.png')
+    # iris_plot = iris.copy()
+    # iris_plot.columns = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
+    # sns_plot = sns.pairplot(iris_plot, hue='class', palette='husl', markers=['o', 's', 'D'])
+    # sns_plot.savefig('plotting/iris_features.png')
     iris_train, iris_test = splitTrainTest(iris)
     iris_train_x = iris_train.iloc[:, 0:4].copy()
     iris_train_y = iris_train.iloc[:, 4:].copy()[4].map({
@@ -27,7 +28,7 @@ def readData():
         'Iris-virginica': 2
     })
 
-    wine = pd.read_csv('source/wine.data', header=None)
+    wine = pd.read_csv('source/wine.data', header=None).sample(frac=1).reset_index(drop=True)
     # Plot feature realtions
     wine_plot = wine.copy()
     # wine_plot.columns = ['class', 'Alcohol', 'Malic acid', 'Ash', 'Alcalinity of ash', 'Magnesium', 'Total phenols', 'Flavanoids', 'Nonflavanoid phenols', 'Proanthocyanins', 'Color intensity', 'Hue', 'OD280/OD315 of diluted wines', 'Proline']
@@ -40,7 +41,7 @@ def readData():
     wine_test_y = wine_test.iloc[:, 0:1].copy()[0].apply(lambda x: x-1)
 
     # Two classes
-    breast = pd.read_csv('source/wdbc.data', header=None)
+    breast = pd.read_csv('source/wdbc.data', header=None).sample(frac=1).reset_index(drop=True)
     breast_train, breast_test = splitTrainTest(breast)
     breast_train_x = breast_train.iloc[:, 2:12].copy()
     breast_train_y = breast_train.iloc[:, 1:2].copy()[1].map({
@@ -53,7 +54,7 @@ def readData():
         'M': 1
     })
 
-    ionosphere = pd.read_csv('source/ionosphere.data', header=None)
+    ionosphere = pd.read_csv('source/ionosphere.data', header=None).sample(frac=1).reset_index(drop=True)
     ionosphere_train, ionosphere_test = splitTrainTest(ionosphere)
     ionosphere_train_x = ionosphere_train.iloc[:, 0:34].copy()
     ionosphere_train_y = ionosphere_train.iloc[:, 34:].copy()[34].map({
@@ -93,7 +94,6 @@ def crossValidation(train_x, train_y, class_num, filename, K=3):
         # Compute start and end index
         start = divided * fold
         end = divided * (fold + 1)
-        # print("start: {}, end: {}".format(start, end))
         training_x = np.concatenate((train_x[:start], train_x[end:]))
         training_y = np.concatenate((train_y[:start], train_y[end:]))
         validation_x = train_x[start:end].values
@@ -117,7 +117,6 @@ def crossValidation(train_x, train_y, class_num, filename, K=3):
         PD_var = np.var(total_PD, axis=0)
         # Plot ROC curve of validation data
         fig = plt.figure()
-        # plt.plot(FA_mean, PD_mean, color = 'black')
         plt.errorbar(FA_mean, PD_mean, yerr=PD_var, uplims=True, lolims=True)
         # plt.xlim(0, 1)
         # plt.ylim(0, 1)
@@ -135,20 +134,24 @@ if __name__ == "__main__":
 
     class_num = 3
     # Run Naive-Bayes Classifier
-    crossValidation(iris_train_x, iris_train_y, class_num, 'iris', 10)
-    prior, train_mean, train_var = NBC.train(iris_train_x.values, iris_train_y.values, class_num)
-    irirs_acc = NBC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_var, class_num, 'iris', True)
+    # crossValidation(iris_train_x, iris_train_y, class_num, 'iris', 10)
+    # prior, train_mean, train_var = NBC.train(iris_train_x.values, iris_train_y.values, class_num)
+    # irirs_acc = NBC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_var, class_num, 'iris', True)
+    # prior, train_mean, train_var = BC.train(iris_train_x.values, iris_train_y.values, class_num)
+    # irirs_acc = BC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_var, class_num, 'iris', True)
 
-    crossValidation(wine_train_x, wine_train_y, class_num, 'wine', 10)
-    prior, train_mean, train_var = NBC.train(wine_train_x.values, wine_train_y.values, class_num)
-    NBC.test(wine_test_x.values, wine_test_y.values, prior, train_mean, train_var, class_num, 'wine', True)
+    # crossValidation(wine_train_x, wine_train_y, class_num, 'wine', 10)
+    # prior, train_mean, train_var = NBC.train(wine_train_x.values, wine_train_y.values, class_num)
+    # NBC.test(wine_test_x.values, wine_test_y.values, prior, train_mean, train_var, class_num, 'wine', True)
 
     class_num = 2
     # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 10)
     # prior, train_mean, train_var = NBC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
     # acc = NBC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_var, class_num, 'ionosphere', True)
 
-    # # Run Naive-Bayes Classifier
+    # Run Naive-Bayes Classifier
     # crossValidation(breast_train_x, breast_train_y, class_num, 'breast', 10)
     # prior, train_mean, train_var = NBC.train(breast_train_x.values, breast_train_y.values, class_num)
     # acc = NBC.test(breast_test_x.values, breast_test_y.values, prior, train_mean, train_var, class_num, 'breast', True)
+    train_weight = PC.train(breast_train_x.values, breast_train_y.values, class_num)
+    acc = PC.test(breast_test_x.values, breast_test_y.values, train_weight, class_num, 'breast', True)
