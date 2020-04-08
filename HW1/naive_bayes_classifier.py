@@ -92,14 +92,8 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, test
         PD = [row[1] for row in FA_PD]
         FA_x = np.linspace(0.0, 1.0, slices)
         PD_interp = np.interp(FA_x, FA, PD)
-        # print("FA : {}".format(FA))
-        # print("PD : {}".format(PD))
-        # print("FA : {}".format(FA[::-1]))
-        # print("PD : {}".format(PD[::-1]))
-        # print(PD_interp)
-
+        # Plot ROC curve of testing data
         if testing is True:
-            # Plot ROC curve of testing data
             fig = plt.figure()
             plt.plot(FA_x, PD_interp)
             plt.xlabel('FA')

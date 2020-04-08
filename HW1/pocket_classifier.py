@@ -14,7 +14,7 @@ def compare(train_x, train_y, weight):
 def update(train_x, train_y, weight):
     """This function is used to update weight based on wrong classified data."""
     num = len(compare(train_x, train_y, weight))
-    new_weight = weight + train_y[compare(train_x, train_y, weight)][np.random.choice(num)] * train_x[compare(train_x, train_y, weight),:][np.random.choice(num)]
+    new_weight = weight + train_y[compare(train_x, train_y, weight)][np.random.choice(num)] * train_x[compare(train_x, train_y, weight),:][np.random.choice(num)].reshape(-1, 1)
     return new_weight
 
 
