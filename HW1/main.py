@@ -144,33 +144,35 @@ if __name__ == "__main__":
     print("====================== IRIS =================")
     # Naive-Bayes classifier
     # crossValidation(iris_train_x, iris_train_y, class_num, 'iris', 'NBC', K)
-    prior, train_mean, train_var = NBC.train(iris_train_x.values, iris_train_y.values, class_num)
-    acc = NBC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_var, class_num, 'iris', 'NBC', True)
+    prior, train_mean, train_cov = BC.train(iris_train_x.values, iris_train_y.values, class_num)
+    acc = BC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_cov, class_num, 'iris', 'BC', True)
+    # prior, train_mean, train_var = NBC.train(iris_train_x.values, iris_train_y.values, class_num)
+    # acc = NBC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_var, class_num, 'iris', 'NBC', True)
     
-    print("====================== WINE =================")
+    # print("====================== WINE =================")
     # Naive-Bayes classifier
     # crossValidation(wine_train_x, wine_train_y, class_num, 'wine', 'NBC', K)
-    prior, train_mean, train_var = NBC.train(wine_train_x.values, wine_train_y.values, class_num)
-    acc = NBC.test(wine_test_x.values, wine_test_y.values, prior, train_mean, train_var, class_num, 'wine', 'NBC', True)
+    # prior, train_mean, train_var = NBC.train(wine_train_x.values, wine_train_y.values, class_num)
+    # acc = NBC.test(wine_test_x.values, wine_test_y.values, prior, train_mean, train_var, class_num, 'wine', 'NBC', True)
 
 
     class_num = 2
-    print("=================== IONOSPHERE ==============")
+    # print("=================== IONOSPHERE ==============")
     # Naive-Bayes classifier
     # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'NBC', K)
-    prior, train_mean, train_var = NBC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
-    acc = NBC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_var, class_num, 'ionosphere', 'NBC', True)
+    # prior, train_mean, train_var = NBC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
+    # acc = NBC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_var, class_num, 'ionosphere', 'NBC', True)
     # Pocket classifier
     # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'PC', K)
-    train_weight = PC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
-    acc = PC.test(ionosphere_test_x.values, ionosphere_test_y.values, train_weight, class_num, 'ionosphere', 'PC', True)
+    # train_weight = PC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
+    # acc = PC.test(ionosphere_test_x.values, ionosphere_test_y.values, train_weight, class_num, 'ionosphere', 'PC', True)
 
-    print("===================== BREAST ================")
+    # print("===================== BREAST ================")
     # Naive-Bayes classifier
     # crossValidation(breast_train_x, breast_train_y, class_num, 'breast', 'NBC', K)
-    prior, train_mean, train_var = NBC.train(breast_train_x.values, breast_train_y.values, class_num)
-    acc = NBC.test(breast_test_x.values, breast_test_y.values, prior, train_mean, train_var, class_num, 'breast', 'NBC', True)
+    # prior, train_mean, train_var = NBC.train(breast_train_x.values, breast_train_y.values, class_num)
+    # acc = NBC.test(breast_test_x.values, breast_test_y.values, prior, train_mean, train_var, class_num, 'breast', 'NBC', True)
     # Pocket classifier
     # crossValidation(breast_train_x, breast_train_y, class_num, 'breast', 'PC', K)
-    train_weight = PC.train(breast_train_x.values, breast_train_y.values, class_num)
-    acc = PC.test(breast_test_x.values, breast_test_y.values, train_weight, class_num, 'breast', 'PC', True)
+    # train_weight = PC.train(breast_train_x.values, breast_train_y.values, class_num)
+    # acc = PC.test(breast_test_x.values, breast_test_y.values, train_weight, class_num, 'breast', 'PC', True)
