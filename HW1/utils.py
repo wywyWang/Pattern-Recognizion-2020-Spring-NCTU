@@ -25,8 +25,8 @@ def computeConfusionMatrix(predict, answer, class_num, model_name, threshold=Non
     if class_num == 2:
         PD = confusion_matrix[1][1] / (confusion_matrix[0][1] + confusion_matrix[1][1]) if (confusion_matrix[0][1] + confusion_matrix[1][1]) != 0 else 0
         FA = confusion_matrix[1][0] / (confusion_matrix[1][0] + confusion_matrix[0][0]) if (confusion_matrix[1][0] + confusion_matrix[0][0]) != 0 else 0
-        print("Confusion matrix:")
-        print(confusion_matrix)
+        # print("Confusion matrix:")
+        # print(confusion_matrix)
         return [FA, PD]
-    print("Confusion matrix:")
-    print(confusion_matrix)
+    # print("Confusion matrix:")
+    # print(confusion_matrix)

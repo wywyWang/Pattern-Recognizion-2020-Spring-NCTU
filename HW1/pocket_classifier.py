@@ -23,8 +23,6 @@ def train(train_x, train_y, class_num):
     ITERATIONS = 5000
     train_y[train_y == 0] = -1          # Replace class 0 to -1 in order to handle perceptron 
     train_y = train_y.reshape(-1, 1)
-    print("train x shape : {}".format(train_x.shape))
-    print("train y shape : {}".format(train_y.shape))
     augment = np.ones((train_x.shape[0], 1))
     train_x = np.concatenate((train_x, augment), axis=1)
     weight = train_x[0].copy()
@@ -36,11 +34,10 @@ def train(train_x, train_y, class_num):
     for iteration in range(ITERATIONS):
         wrong_idx = compare(train_x, train_y, weight)
         weight = update(train_x, train_y, weight)
-        # print("# of wrong points : {}".format(len(wrong_idx)))
         if len(wrong_idx) < best_wrong:
             best_wrong = len(wrong_idx)
             best_weight = weight.copy()
-    print("min error : {}".format(best_wrong))
+    # print("min error : {}".format(best_wrong))
     return weight
 
 
@@ -56,7 +53,6 @@ def test(test_x, test_y, weight, class_num, filename, model_name, testing=False)
     y_pred[negative_idx] = -1
     error = len(np.where(y_pred != test_y)[0])
     accuracy = (test_x.shape[0] - error) / test_x.shape[0]
-    print(probability)
 
     #Plot ROC curve
     FA_PD = []

@@ -81,7 +81,7 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, mode
     #Plot ROC curve
     FA_PD = []
     if class_num == 2:
-        slices = 20
+        slices = 50
         low = min(total_probability)
         high = max(total_probability)
         step = (abs(low) + abs(high)) / slices
@@ -90,8 +90,6 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, mode
             FA_PD.append(utils.computeConfusionMatrix(total_probability, test_y, class_num, model_name, threshold))
         FA = [row[0] for row in FA_PD]
         PD = [row[1] for row in FA_PD]
-        print("PD = {}".format(PD))
-        print("FA = {}".format(FA))
         FA_x = np.linspace(0.0, 1.0, slices)
         PD_interp = np.interp(FA_x, FA, PD)
         # Plot ROC curve of testing data
