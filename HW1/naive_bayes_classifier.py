@@ -70,7 +70,7 @@ def test(test_x, test_y, prior, train_mean, train_var, class_num, filename, mode
                 predict_value = computeGaussian(test_x[data_idx][feature_idx], train_mean[label][feature_idx], train_var[label][feature_idx])
                 probability[label] += predict_value
         probability = normalization(probability, class_num)
-        total_probability[data_idx] = probability[1]
+        total_probability[data_idx] = probability[1]            #Select class 1
         multi_class.append(probability)
         prediction = np.argmin(probability)
         predict_list.append(prediction)

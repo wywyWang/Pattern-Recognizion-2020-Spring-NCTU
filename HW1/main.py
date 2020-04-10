@@ -112,6 +112,14 @@ def crossValidation(train_x, train_y, class_num, filename, model_name, K=3):
             acc, FA, PD = PC.test(validation_x, validation_y, train_weight, class_num, filename, model_name, False)
             total_FA.append(np.array(FA))
             total_PD.append(np.array(PD))
+        elif model_name == 'BC':
+            prior, train_mean, train_cov = BC.train(training_x, training_y, class_num)
+            if class_num == 2:
+                acc, FA, PD = BC.test(validation_x, validation_y, prior, train_mean, train_cov, class_num, filename, model_name, False)
+                total_FA.append(np.array(FA))
+                total_PD.append(np.array(PD))
+            else:
+                acc = BC.test(validation_x, validation_y, prior, train_mean, train_cov, class_num, filename, model_name, False)
         overall_acc += acc
     print("Overall accuracy: {}".format(overall_acc / K))
     # Plot ROC curve if it is binary classification.
@@ -139,18 +147,25 @@ if __name__ == "__main__":
         breast_train_x, breast_train_y, breast_test_x, breast_test_y, \
         wine_train_x, wine_train_y, wine_test_x, wine_test_y = readData()
 
+
     K = 10
     class_num = 3
-    print("====================== IRIS =================")
-    # Naive-Bayes classifier
+    # print("====================== IRIS =================")
+    # # Bayesian classifier
+    # crossValidation(iris_train_x, iris_train_y, class_num, 'iris', 'BC', K)
+    # prior, train_mean, train_cov = BC.train(iris_train_x.values, iris_train_y.values, class_num)
+    # acc = BC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_cov, class_num, 'iris', 'BC', True)
+    # # Naive-Bayes classifier
     # crossValidation(iris_train_x, iris_train_y, class_num, 'iris', 'NBC', K)
-    prior, train_mean, train_cov = BC.train(iris_train_x.values, iris_train_y.values, class_num)
-    acc = BC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_cov, class_num, 'iris', 'BC', True)
     # prior, train_mean, train_var = NBC.train(iris_train_x.values, iris_train_y.values, class_num)
     # acc = NBC.test(iris_test_x.values, iris_test_y.values, prior, train_mean, train_var, class_num, 'iris', 'NBC', True)
     
     # print("====================== WINE =================")
-    # Naive-Bayes classifier
+    # # Bayesian classifier
+    # crossValidation(wine_train_x, wine_train_y, class_num, 'wine', 'BC', K)
+    # prior, train_mean, train_cov = BC.train(wine_train_x.values, wine_train_y.values, class_num)
+    # acc = BC.test(wine_test_x.values, wine_test_y.values, prior, train_mean, train_cov, class_num, 'wine', 'BC', True)
+    # # Naive-Bayes classifier
     # crossValidation(wine_train_x, wine_train_y, class_num, 'wine', 'NBC', K)
     # prior, train_mean, train_var = NBC.train(wine_train_x.values, wine_train_y.values, class_num)
     # acc = NBC.test(wine_test_x.values, wine_test_y.values, prior, train_mean, train_var, class_num, 'wine', 'NBC', True)
@@ -158,21 +173,29 @@ if __name__ == "__main__":
 
     class_num = 2
     # print("=================== IONOSPHERE ==============")
-    # Naive-Bayes classifier
+    # # Bayesian classifier
+    # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'BC', K)
+    # prior, train_mean, train_cov = BC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
+    # acc = BC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_cov, class_num, 'ionosphere', 'BC', True)
+    # # Naive-Bayes classifier
     # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'NBC', K)
     # prior, train_mean, train_var = NBC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
     # acc = NBC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_var, class_num, 'ionosphere', 'NBC', True)
-    # Pocket classifier
+    # # Pocket classifier
     # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'PC', K)
     # train_weight = PC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
     # acc = PC.test(ionosphere_test_x.values, ionosphere_test_y.values, train_weight, class_num, 'ionosphere', 'PC', True)
 
     # print("===================== BREAST ================")
-    # Naive-Bayes classifier
+    # # Bayesian classifier
+    # crossValidation(breast_train_x, breast_train_y, class_num, 'breast', 'BC', K)
+    # prior, train_mean, train_cov = BC.train(breast_train_x.values, breast_train_y.values, class_num)
+    # acc = BC.test(breast_test_x.values, breast_test_y.values, prior, train_mean, train_cov, class_num, 'breast', 'BC', True)
+    # # Naive-Bayes classifier
     # crossValidation(breast_train_x, breast_train_y, class_num, 'breast', 'NBC', K)
     # prior, train_mean, train_var = NBC.train(breast_train_x.values, breast_train_y.values, class_num)
     # acc = NBC.test(breast_test_x.values, breast_test_y.values, prior, train_mean, train_var, class_num, 'breast', 'NBC', True)
-    # Pocket classifier
+    # # Pocket classifier
     # crossValidation(breast_train_x, breast_train_y, class_num, 'breast', 'PC', K)
     # train_weight = PC.train(breast_train_x.values, breast_train_y.values, class_num)
     # acc = PC.test(breast_test_x.values, breast_test_y.values, train_weight, class_num, 'breast', 'PC', True)
