@@ -172,19 +172,19 @@ if __name__ == "__main__":
 
 
     class_num = 2
-    # print("=================== IONOSPHERE ==============")
-    # # Bayesian classifier
-    # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'BC', K)
-    # prior, train_mean, train_cov = BC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
-    # acc = BC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_cov, class_num, 'ionosphere', 'BC', True)
-    # # Naive-Bayes classifier
-    # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'NBC', K)
-    # prior, train_mean, train_var = NBC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
-    # acc = NBC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_var, class_num, 'ionosphere', 'NBC', True)
-    # # Pocket classifier
-    # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'PC', K)
-    # train_weight = PC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
-    # acc = PC.test(ionosphere_test_x.values, ionosphere_test_y.values, train_weight, class_num, 'ionosphere', 'PC', True)
+    print("=================== IONOSPHERE ==============")
+    # Bayesian classifier
+    crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'BC', K)
+    prior, train_mean, train_cov = BC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
+    acc = BC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_cov, class_num, 'ionosphere', 'BC', True)
+    # Naive-Bayes classifier
+    crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'NBC', K)
+    prior, train_mean, train_var = NBC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
+    acc = NBC.test(ionosphere_test_x.values, ionosphere_test_y.values, prior, train_mean, train_var, class_num, 'ionosphere', 'NBC', True)
+    # Pocket classifier
+    crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'PC', K)
+    train_weight = PC.train(ionosphere_train_x.values, ionosphere_train_y.values, class_num)
+    acc = PC.test(ionosphere_test_x.values, ionosphere_test_y.values, train_weight, class_num, 'ionosphere', 'PC', True)
 
     # print("===================== BREAST ================")
     # # Bayesian classifier

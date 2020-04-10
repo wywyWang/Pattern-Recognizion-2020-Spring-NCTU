@@ -51,6 +51,10 @@ def train(train_x, train_y, class_num):
     prior = np.array(prior)
     mean = np.array(mean)
     cov = np.array(cov)
+    # psuedo count for covariance
+    for class_idx in range(class_num):
+        if np.linalg.det(cov[class_idx]) == 0:
+            np.fill_diagonal(cov[class_idx], 1)
     # print(prior)
     # print(mean)
     # print(cov)
@@ -69,7 +73,7 @@ def test(test_x, test_y, prior, train_mean, train_cov, class_num, filename, mode
             likelihood = computeMultivariateGaussian(test_x[data_idx], train_mean[class_idx], train_cov[class_idx])
             probability[class_idx] += likelihood
         probability = normalization(probability, class_num)
-        total_probability[data_idx] = probability[1]            #Select class 1
+        total_probability[data_idx] = probability[1]            # Select class 1
         multi_class.append(probability)
         prediction = np.argmin(probability)
         error += checkResult(prediction, test_y[data_idx])
