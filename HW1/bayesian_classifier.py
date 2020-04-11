@@ -96,6 +96,7 @@ def test(test_x, test_y, prior, train_mean, train_cov, class_num, filename, mode
         PD_interp = np.interp(FA_x, FA, PD)
         # Plot ROC curve of testing data
         if testing is True:
+            utils.computeConfusionMatrix(multi_class, test_y, class_num, model_name)
             fig = plt.figure()
             plt.plot(FA_x, PD_interp)
             plt.xlabel('FA')

@@ -8,35 +8,50 @@ def computeConfusionMatrix(predict, answer, class_num, model_name, threshold=Non
     for data_idx in range(len(predict)):
         if model_name == 'NBC':
             if class_num == 2:
-                if predict[data_idx] <= threshold:
-                    prediction = 1
+                if threshold is None:
+                    prediction = np.argmin(predict[data_idx])
+                    confusion_matrix[prediction][answer[data_idx]] += 1                    
                 else:
-                    prediction = 0
-                confusion_matrix[prediction][answer[data_idx]] += 1           
+                    if predict[data_idx] <= threshold:
+                        prediction = 1
+                    else:
+                        prediction = 0
+                    confusion_matrix[prediction][answer[data_idx]] += 1           
             else:
                 prediction = np.argmin(predict[data_idx])
                 confusion_matrix[prediction][answer[data_idx]] += 1
         elif model_name == 'PC':
-            if predict[data_idx][0] <= threshold:
-                prediction = 0
+            if threshold is None:
+                if predict[data_idx][0] <= 0:
+                    prediction = 0
+                else:
+                    prediction = 1                
             else:
-                prediction = 1
+                if predict[data_idx][0] <= threshold:
+                    prediction = 0
+                else:
+                    prediction = 1
             confusion_matrix[prediction][answer[data_idx][0]] += 1
         elif model_name == 'BC':
             if class_num == 2:
-                if predict[data_idx] <= threshold:
-                    prediction = 1
+                if threshold is None:
+                    prediction = np.argmin(predict[data_idx])
+                    confusion_matrix[prediction][answer[data_idx]] += 1                    
                 else:
-                    prediction = 0
-                confusion_matrix[prediction][answer[data_idx]] += 1           
+                    if predict[data_idx] <= threshold:
+                        prediction = 1
+                    else:
+                        prediction = 0
+                    confusion_matrix[prediction][answer[data_idx]] += 1           
             else:
                 prediction = np.argmin(predict[data_idx])
                 confusion_matrix[prediction][answer[data_idx]] += 1
     if class_num == 2:
         PD = confusion_matrix[1][1] / (confusion_matrix[0][1] + confusion_matrix[1][1]) if (confusion_matrix[0][1] + confusion_matrix[1][1]) != 0 else 0
         FA = confusion_matrix[1][0] / (confusion_matrix[1][0] + confusion_matrix[0][0]) if (confusion_matrix[1][0] + confusion_matrix[0][0]) != 0 else 0
-        # print("Confusion matrix:")
-        # print(confusion_matrix)
+        if threshold is None:
+            print("Confusion matrix:")
+            print(confusion_matrix)
         return [FA, PD]
-    # print("Confusion matrix:")
-    # print(confusion_matrix)
+    print("Confusion matrix:")
+    print(confusion_matrix)
