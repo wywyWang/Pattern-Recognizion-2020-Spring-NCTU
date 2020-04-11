@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 import bayesian_classifier as BC
 import naive_bayes_classifier as NBC
@@ -9,11 +8,6 @@ import pocket_classifier as PC
 def readData():
     # Three classes
     iris = pd.read_csv('source/iris.data', header=None).sample(frac=1).reset_index(drop=True)
-    # Plot feature realtions
-    # iris_plot = iris.copy()
-    # iris_plot.columns = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
-    # sns_plot = sns.pairplot(iris_plot, hue='class', palette='husl', markers=['o', 's', 'D'])
-    # sns_plot.savefig('plotting/iris_features.png')
     iris_train, iris_test = splitTrainTest(iris)
     iris_train_x = iris_train.iloc[:, 0:4].copy()
     iris_train_y = iris_train.iloc[:, 4:].copy()[4].map({
@@ -31,9 +25,6 @@ def readData():
     wine = pd.read_csv('source/wine.data', header=None).sample(frac=1).reset_index(drop=True)
     # Plot feature realtions
     wine_plot = wine.copy()
-    # wine_plot.columns = ['class', 'Alcohol', 'Malic acid', 'Ash', 'Alcalinity of ash', 'Magnesium', 'Total phenols', 'Flavanoids', 'Nonflavanoid phenols', 'Proanthocyanins', 'Color intensity', 'Hue', 'OD280/OD315 of diluted wines', 'Proline']
-    # sns_plot = sns.pairplot(wine_plot, hue='class', palette='husl', markers=['o', 's', 'D'])
-    # sns_plot.savefig('plotting/wine_features.png')
     wine_train, wine_test = splitTrainTest(wine)
     wine_train_x = wine_train.iloc[:, 1:].copy()
     wine_train_y = wine_train.iloc[:, 0:1].copy()[0].apply(lambda x: x-1)
