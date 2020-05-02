@@ -10,7 +10,7 @@ from svmutil import *
 PROPORTIONAL = 0.9
 CLASS_NUM = 2
 K = 5
-KERNEL = 0
+KERNEL = 1
 
 
 def readData():
@@ -152,16 +152,44 @@ def TestBest(x_train, y_train, x_test, y_test, best_pair):
     model = svm_train(prob, param)
     prediction = svm_predict(y_test, x_test, model)
     probability = []
+    predict_class = []
     for i in range(len(prediction[2])):
+        predict_class.append(int(prediction[0][i]))
         probability.append(prediction[2][i][0])
+    predict_class = np.array(predict_class)
     probability = np.array(probability)
-    # w = model.obj
-    # b = -model.rho
-    # if (model.Label(1) == -1):
-    #     w = -w; b = -b
-    # print("w = {}".format(w))
-    # print("b = {}".format(b))
-    return prediction[0], probability
+    return predict_class, probability, model
+
+
+def plotDecisionBoundary(X, y, model, filename):
+    h = 1  # step size in the mesh
+    # create a mesh to plot in
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                        np.arange(y_min, y_max, h))
+
+    # Put the result into a color plot
+    dummy_class = np.ones((np.c_[xx.ravel(), yy.ravel()].shape[0], 1))
+    print(dummy_class.shape)
+    print(np.c_[xx.ravel(), yy.ravel()].shape)
+    Z = svm_predict(dummy_class, np.c_[xx.ravel(), yy.ravel()], model)
+    predict_class = []
+    for i in range(len(Z[0])):
+        predict_class.append(int(Z[0][i]))
+    predict_class = np.array(predict_class)
+    Z = predict_class.reshape(xx.shape)
+    fig = plt.figure()
+    plt.contourf(xx, yy, Z, cmap=plt.cm.coolwarm, alpha=0.8)
+
+    # Plot also the training points
+    plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.coolwarm)
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+    plt.xticks(())
+    plt.yticks(())
+    plt.title('Decision boundary')
+    fig.savefig('plotting/' + filename + '_svm_decision_boundary_' + str(KERNEL) + '_testing.png')
 
 
 if __name__ == '__main__':
@@ -178,10 +206,11 @@ if __name__ == '__main__':
     print("Best pair  = {}".format(best_pair))
     print("Best acc = {}".format(best_acc))
     before = time.time()
-    predict, probability = TestBest(iris_train_x.values, iris_train_y.values.ravel(), iris_test_x.values, iris_test_y.values.ravel(), best_pair)
+    predict, probability, model = TestBest(iris_train_x.values, iris_train_y.values.ravel(), iris_test_x.values, iris_test_y.values.ravel(), best_pair)
     print("Testing time : {}".format(time.time() - before))
     computeConfusionMatrix(probability, iris_test_y.values.ravel())
     plotROC(probability, iris_test_y.values.ravel(), 'iris')
+    plotDecisionBoundary(iris_train_x.values, iris_train_y.values.ravel(), model, 'iris')
 
     print("=================== BREAST ==============")
     before = time.time()
@@ -190,19 +219,20 @@ if __name__ == '__main__':
     print("Best pair  = {}".format(best_pair))
     print("Best acc = {}".format(best_acc))
     before = time.time()
-    predict, probability = TestBest(breast_train_x.values, breast_train_y.values.ravel(), breast_test_x.values, breast_test_y.values.ravel(), best_pair)
+    predict, probability, breast_model = TestBest(breast_train_x.values, breast_train_y.values.ravel(), breast_test_x.values, breast_test_y.values.ravel(), best_pair)
     print("Testing time : {}".format(time.time() - before))
     computeConfusionMatrix(probability, breast_test_y.values.ravel())
     plotROC(probability, breast_test_y.values.ravel(), 'breast')
+    plotDecisionBoundary(breast_train_x.values, breast_train_y.values.ravel(), breast_model, 'breast')
 
-    print("=================== IONOSPHERE ==============")
-    before = time.time()
-    best_pair, best_acc = GridSearch(ionosphere_train_x.values, ionosphere_train_y.values.ravel())
-    print("Grid search time : {}".format(time.time() - before))
-    print("Best pair  = {}".format(best_pair))
-    print("Best acc = {}".format(best_acc))
-    before = time.time()
-    predict, probability = TestBest(ionosphere_train_x.values, ionosphere_train_y.values.ravel(), ionosphere_test_x.values, ionosphere_test_y.values.ravel(), best_pair)
-    print("Testing time : {}".format(time.time() - before))
-    computeConfusionMatrix(probability, ionosphere_test_y.values.ravel())
-    plotROC(probability, ionosphere_test_y.values.ravel(), 'ionosphere')
+    # print("=================== IONOSPHERE ==============")
+    # before = time.time()
+    # best_pair, best_acc = GridSearch(ionosphere_train_x.values, ionosphere_train_y.values.ravel())
+    # print("Grid search time : {}".format(time.time() - before))
+    # print("Best pair  = {}".format(best_pair))
+    # print("Best acc = {}".format(best_acc))
+    # before = time.time()
+    # predict, probability = TestBest(ionosphere_train_x.values, ionosphere_train_y.values.ravel(), ionosphere_test_x.values, ionosphere_test_y.values.ravel(), best_pair)
+    # print("Testing time : {}".format(time.time() - before))
+    # computeConfusionMatrix(probability, ionosphere_test_y.values.ravel())
+    # plotROC(probability, ionosphere_test_y.values.ravel(), 'ionosphere')
