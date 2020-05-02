@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 from svmutil import *
 
 
-PROPORTIONAL = 0.8
+PROPORTIONAL = 0.6
 CLASS_NUM = 2
 K = 5
-KERNEL = 0
+KERNEL = 2
 
 
 def readData():
@@ -159,11 +159,13 @@ def TestBest(x_train, y_train, x_test, y_test, best_pair):
     predict_class = np.array(predict_class)
     probability = np.array(probability)
     support_vectors = model.get_SV()
+    nr_sv = model.get_nr_sv()
+    print("# of support_vectors : {}".format(nr_sv))
     return predict_class, probability, model
 
 
 def plotDecisionBoundary(X, y, model, filename):
-    h = 0.2  # step size in the mesh
+    h = 0.02  # step size in the mesh
     # create a mesh to plot in
     x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
     y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
@@ -174,7 +176,7 @@ def plotDecisionBoundary(X, y, model, filename):
     dummy_class = np.ones((np.c_[xx.ravel(), yy.ravel()].shape[0], 1))
     print(dummy_class.shape)
     print(np.c_[xx.ravel(), yy.ravel()].shape)
-    Z = svm_predict(dummy_class, np.c_[xx.ravel(), yy.ravel()], model)
+    Z = svm_predict([], np.c_[xx.ravel(), yy.ravel()], model)
     predict_class = []
     for i in range(len(Z[0])):
         predict_class.append(int(Z[0][i]))
@@ -239,3 +241,17 @@ if __name__ == '__main__':
     plotROC(probability, ionosphere_test_y.values.ravel(), 'ionosphere')
     plotDecisionBoundary(ionosphere_train_x.values, ionosphere_train_y.values.ravel(), ionosphere_model, 'ionosphere_train')
     plotDecisionBoundary(ionosphere_test_x.values, ionosphere_test_y.values.ravel(), ionosphere_model, 'ionosphere_test')
+
+    print("=================== WINE ==============")
+    before = time.time()
+    best_pair, best_acc = GridSearch(wine_train_x.values, wine_train_y.values.ravel())
+    print("Grid search time : {}".format(time.time() - before))
+    print("Best pair  = {}".format(best_pair))
+    print("Best acc = {}".format(best_acc))
+    before = time.time()
+    predict, probability, wine_model = TestBest(wine_train_x.values, wine_train_y.values.ravel(), wine_test_x.values, wine_test_y.values.ravel(), best_pair)
+    print("Testing time : {}".format(time.time() - before))
+    computeConfusionMatrix(probability, wine_test_y.values.ravel())
+    plotROC(probability, wine_test_y.values.ravel(), 'wine')
+    plotDecisionBoundary(wine_train_x.values, wine_train_y.values.ravel(), wine_model, 'wine_train')
+    plotDecisionBoundary(wine_test_x.values, wine_test_y.values.ravel(), wine_model, 'wine_test')
