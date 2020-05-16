@@ -183,15 +183,18 @@ if __name__ == "__main__":
     # acc = NBC.test(iris_lower_dimension_test, iris_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'iris_lower', 'NBC', True)
 
 
-    # print("=================== BREAST ==============")
-    # breast_train_x_selection, breast_test_x_selection = featureSelection(breast_train_x.values, breast_train_y.values.ravel(), breast_test_x.values)
-    # breast_lower_dimension_train, breast_lower_dimension_test = LDA.LDA(breast_train_x_selection, breast_train_y.values.ravel(), breast_test_x_selection, breast_test_y.values.ravel(), 'breast')
-    # prior, train_mean, train_cov = NBC.train(breast_train_x.values, breast_train_y.values.ravel(), CLASS_NUM)
-    # acc = NBC.test(breast_test_x.values, breast_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'breast', 'NBC', True)
-    # # # Project to lower dimension
-    # # crossValidation(iris_lower_dimension_train, iris_train_y, CLASS_NUM, 'iris', 'NBC', K)        # BUG
-    # prior, train_mean, train_cov = NBC.train(breast_lower_dimension_train, breast_train_y.values.ravel(), CLASS_NUM)
-    # acc = NBC.test(breast_lower_dimension_test, breast_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'breast_lower', 'NBC', True)
+    print("=================== BREAST ==============")
+    breast_train_x_selection, breast_test_x_selection = featureSelection(breast_train_x.values, breast_train_y.values.ravel(), breast_test_x.values)
+    breast_lower_dimension_train, breast_lower_dimension_test = LDA.LDA(breast_train_x_selection, breast_train_y.values.ravel(), breast_test_x_selection, breast_test_y.values.ravel(), 'breast')
+    prior, train_mean, train_cov = NBC.train(breast_train_x.values, breast_train_y.values.ravel(), CLASS_NUM)
+    acc = NBC.test(breast_test_x.values, breast_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'breast', 'NBC', True)
+    # # Project to lower dimension
+    # crossValidation(iris_lower_dimension_train, iris_train_y, CLASS_NUM, 'iris', 'NBC', K)        # BUG
+    prior, train_mean, train_cov = NBC.train(breast_lower_dimension_train, breast_train_y.values.ravel(), CLASS_NUM)
+    acc = NBC.test(breast_lower_dimension_test, breast_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'breast_lower', 'NBC', True)
+    # KNN
+    y_pred = LDA.knn(breast_lower_dimension_train, breast_train_y.values.ravel(), breast_lower_dimension_test)
+    acc = LDA.compute_accuracy(y_pred, breast_test_y.values.ravel())
 
     # print("=================== IONOSPHERE ==============")
     # ionosphere_train_x_selection, ionosphere_test_x_selection = featureSelection(ionosphere_train_x.values, ionosphere_train_y.values.ravel(), ionosphere_test_x.values)
@@ -203,12 +206,12 @@ if __name__ == "__main__":
     # prior, train_mean, train_cov = NBC.train(ionosphere_lower_dimension_train, ionosphere_train_y.values.ravel(), CLASS_NUM)
     # acc = NBC.test(ionosphere_lower_dimension_test, ionosphere_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'ionosphere_lower', 'NBC', True)
 
-    print("=================== WINE ==============")
-    wine_train_x_selection, wine_test_x_selection = featureSelection(wine_train_x.values, wine_train_y.values.ravel(), wine_test_x.values)
-    wine_lower_dimension_train, wine_lower_dimension_test = LDA.LDA(wine_train_x_selection, wine_train_y.values.ravel(), wine_test_x_selection, wine_test_y.values.ravel(), 'wine')
-    prior, train_mean, train_cov = NBC.train(wine_train_x.values, wine_train_y.values.ravel(), CLASS_NUM)
-    acc = NBC.test(wine_test_x.values, wine_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'wine', 'NBC', True)
-    # # Project to lower dimension
-    # crossValidation(iris_lower_dimension_train, iris_train_y, CLASS_NUM, 'iris', 'NBC', K)        # BUG
-    prior, train_mean, train_cov = NBC.train(wine_lower_dimension_train, wine_train_y.values.ravel(), CLASS_NUM)
-    acc = NBC.test(wine_lower_dimension_test, wine_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'wine_lower', 'NBC', True)
+    # print("=================== WINE ==============")
+    # wine_train_x_selection, wine_test_x_selection = featureSelection(wine_train_x.values, wine_train_y.values.ravel(), wine_test_x.values)
+    # wine_lower_dimension_train, wine_lower_dimension_test = LDA.LDA(wine_train_x_selection, wine_train_y.values.ravel(), wine_test_x_selection, wine_test_y.values.ravel(), 'wine')
+    # prior, train_mean, train_cov = NBC.train(wine_train_x.values, wine_train_y.values.ravel(), CLASS_NUM)
+    # acc = NBC.test(wine_test_x.values, wine_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'wine', 'NBC', True)
+    # # # Project to lower dimension
+    # # crossValidation(iris_lower_dimension_train, iris_train_y, CLASS_NUM, 'iris', 'NBC', K)        # BUG
+    # prior, train_mean, train_cov = NBC.train(wine_lower_dimension_train, wine_train_y.values.ravel(), CLASS_NUM)
+    # acc = NBC.test(wine_lower_dimension_test, wine_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'wine_lower', 'NBC', True)
