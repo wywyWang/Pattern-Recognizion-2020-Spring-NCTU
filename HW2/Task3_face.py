@@ -4,50 +4,57 @@ import matplotlib.pyplot as plt
 import os
 import re
 
-LOWER_D = 3
-PIC_COUNT = 10
-SHAPE = (400, 400)
+LOWER_D = 500
 K = 5
-PROPORTIONAL = 0.8
 
 
-def read_input_gender(filename, storedir, gender):
+def read_input_face(filename, storedir):
     img = Image.open(filename)
-    img = img.resize(SHAPE)
     width, height = img.size
-    pixel = np.array(img.getdata()).reshape((width, height))
+    print(width, height)
+    pixel = np.asarray(img)
     data = []
     target = []
     totalfile = []
-    for i in range(PIC_COUNT):
-        for j in range(PIC_COUNT):
-            each_image = pixel[i * 40:(i+1) * 40, j * 40:(j+1) * 40].copy().reshape(40 * 40)
-            data.append(each_image)
-            target.append(gender)
-            if gender == 0:
-                totalfile.append(str(i) + str(j) + 'f.png')
-            else:
-                totalfile.append(str(i) + str(j) + 'm.png')
-    data = np.array(data)
-    target = np.array(target)
-    totalfile = np.array(totalfile)
-    # train_id = np.random.choice(data.shape[0], int(data.shape[0] * PROPORTIONAL), replace=False)
-    train_id = np.arange(80)
+
     data_test = []
     data_train = []
     target_train = []
     target_test = []
     totalfile_train = []
     totalfile_test = []
-    for i in range(data.shape[0]):
-        if i not in train_id:
-            data_test.append(data[i, :])
-            target_test.append(target[i])
-            totalfile_test.append(totalfile[i])
-        else:
-            data_train.append(data[i, :])
-            target_train.append(target[i])
-            totalfile_train.append(totalfile[i])
+    for i in range(16):
+        for j in range(5):
+            each_image = pixel[j * 40 : (j+1) * 40, i * 40 : (i+1) * 40].copy().reshape(40 * 40)
+            if j == 0:
+                data_test.append(each_image)
+                target_test.append(i)
+                totalfile_test.append(str(i) + str(j) + '.png')
+            if j < 5:
+                data_train.append(each_image)
+                target_train.append(i)
+                totalfile_train.append(str(i) + str(j) + '.png')
+                # Data augmentation
+                each_copy = each_image.copy().reshape(40, 40)
+                # Vertical flip
+                each_copy_vertical = np.flip(each_copy, axis=1).reshape(40 * 40)
+                data_train.append(each_copy_vertical)
+                target_train.append(i)
+                totalfile_train.append(str(i) + str(j) + '.png')
+                # if i == 0 and j != 0:
+                #     new_img = Image.new(img.mode, (40, 40))
+                #     new_img.putdata(each_copy_vertical)
+                #     new_img.save(storedir + str(i) + str(j) + '_vertical.bmp')
+            # data.append(each_image)
+            # target.append(i)
+            # totalfile.append(str(i) + str(j) + '.png')
+            # # Test pixels are correct for one image
+            # new_img = Image.new(img.mode, (40, 40))
+            # new_img.putdata(each_image)
+            # new_img.save(storedir + str(i) + str(j) + '.bmp')
+            # plt.imshow(each_image.reshape(40, 40), plt.cm.gray)
+            # plt.savefig(storedir + str(i) + str(j) + '.png')
+    
     data_test = np.array(data_test)
     target_test = np.array(target_test)
     totalfile_test = np.array(totalfile_test)
@@ -75,46 +82,27 @@ def visualization(storedir, totalfile, data):
     for each_id, each_data in enumerate(data):
         if each_id == 2:
             break
-        img = Image.new('L', (40, 40), 'white')
-        print(each_data)
+        img = Image.new('L', (40, 40))
         pixel = img.load()
         each_copy = each_data.reshape(40, 40).copy()
         for i in range(each_copy.shape[0]):
             for j in range(each_copy.shape[1]):
-                print(each_copy[i, j])
-                print(pixel[i, j])
                 pixel[i, j] = each_copy[i, j].copy()
         img.save(storedir + totalfile[each_id])
         # each_image = each_data.reshape(40, 40).copy().T
         # plt.imshow(each_image, plt.cm.gray)
         # plt.savefig(storedir + totalfile[each_id])
 
-    # img = Image.open(filename)
-    # img = img.resize(SHAPE, Image.ANTIALIAS)
-    # width, height = img.size
-    # idx = 0
-    # for file in totalfile:
-    #     filename = dirname + file
-    #     storename = storedir + file
-    #     img = Image.open(filename)
-    #     img = img.resize(SHAPE, Image.ANTIALIAS)
-    #     width, height = img.size
-    #     pixel = img.load()
-    #     pixel[i * 40:(i+1) * 40, j * 40:(j+1) * 40] = data[idx].reshape(width, height).copy()
-    #     img.save(storename + '.png')
-    #     idx += 1
-
 
 def draweigenface(storedir, eigen_vectors):
     title = "PCA Eigen-Face" + '_'
     eigen_vectors = eigen_vectors.T
     for i in range(0, LOWER_D):
-        # new_img.putdata(each_image)
         plt.clf()
         plt.suptitle(title + str(i))
         plt.imshow(eigen_vectors[i].reshape((40, 40)), plt.cm.gray)
         plt.savefig(storedir + title + str(i) + '.png')
-        
+
 
 def KNN(traindata, testdata, target):
     trainsize = traindata.shape[0]
@@ -126,6 +114,7 @@ def KNN(traindata, testdata, target):
             all_dist[trainidx] = np.sqrt(np.sum((testdata[testidx] - traindata[trainidx]) ** 2))
         sort_idx = all_dist.argsort()
         neighbor = list(target[sort_idx][:K])
+        # print(neighbor)
         prediction = max(set(neighbor), key=neighbor.count)
         y_pred.append(prediction)
     y_pred = np.array(y_pred)
@@ -142,7 +131,7 @@ def checkperformance(targettest, predict):
 
 
 def PCA(data):
-    covariance = np.cov(data.T)
+    covariance = np.cov(np.matmul(data.T, data))
     eigen_vectors = compute_eigen(covariance)
     lower_dimension_data = np.matmul(data, eigen_vectors)
     # print(lower_dimension_data)
@@ -152,34 +141,27 @@ def PCA(data):
 
 
 if __name__ == '__main__':
-    dirtrain = './task3_data/fP1.bmp'
-    storedir = './task3_parsed/'
-    data_train_f, target_train_f, totalfile_train_f, data_test_f, target_test_f, totalfile_test_f = read_input_gender(dirtrain, storedir, 0)
-    dirtrain = './task3_data/mP1.bmp'
-    data_train_m, target_train_m, totalfile_train_m, data_test_m, target_test_m, totalfile_test_m = read_input_gender(dirtrain, storedir, 1)
-    data_train = np.concatenate((data_train_f, data_train_m))
-    target_train = np.concatenate((target_train_f, target_train_m))
-    totalfile_train = np.concatenate((totalfile_train_f, totalfile_train_m))
-
-    data_test = np.concatenate((data_test_f, data_test_m))
-    target_test = np.concatenate((target_test_f, target_test_m))
-    totalfile_test = np.concatenate((totalfile_test_f, totalfile_test_m))
-
+    dirtrain = './task3_data/facesP1.bmp'
+    storedir = './task3_face_parsed/'
+    data_train, target_train, totalfile_train,\
+        data_test, target_test, totalfile_test = read_input_face(dirtrain, storedir)
+    
     lower_dimension_data, eigen_vectors = PCA(data_train)
     print("data shape = {}".format(data_train.shape))
     print("eigen vector shape = {}".format(eigen_vectors.shape))
-    print("lower_dimension_data shape: {}".format(lower_dimension_data.shape))
+    print("lower_dimension_data shape: {}".format(lower_dimension_data.shape))    
 
     # reconstruct_data = np.matmul(lower_dimension_data, eigen_vectors.T)
     # print("reconstruct_data shape: {}".format(reconstruct_data.shape))
-    # storedir = './task3_eigenface/'
+    # storedir = './task3_face_eigenface/'
     # draweigenface(storedir, eigen_vectors)
 
-    # # storedir = './task3_reconstruct/'
-    # # visualization(storedir, totalfile_train, reconstruct_data)
-    # lower_dimension_data_test = np.matmul(data_test, eigen_vectors)
-    # # lower_dimension_data_test, eigen_vectors_test = PCA(data_test)
-    # print("lower_dimension_data shape: {}".format(lower_dimension_data.shape))
-    # print("lower_dimension_data_test shape: {}".format(lower_dimension_data_test.shape))
-    # predict = KNN(lower_dimension_data, lower_dimension_data_test, target_train)
-    # checkperformance(target_test, predict)
+    # storedir = './task3_face_reconstruct/'
+    # visualization(storedir, totalfile_train, reconstruct_data)
+    # lower_dimension_data_test, eigen_vectors_test = PCA(data_test)
+    lower_dimension_data_test = np.matmul(data_test, eigen_vectors)
+    print("lower_dimension_data shape: {}".format(lower_dimension_data.shape))
+    print("lower_dimension_data_test shape: {}".format(lower_dimension_data_test.shape))
+    predict = KNN(lower_dimension_data, lower_dimension_data_test, target_train)
+    checkperformance(target_test, predict)
+    
