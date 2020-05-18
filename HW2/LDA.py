@@ -83,7 +83,7 @@ def plot_result(x_train, y_train, weight, class_mean, filename):
     # plt.xlim(min(x_train[:, 0]), max(x_train[:, 0]))
     # plt.ylim(min(x_train[:, 1]), max(x_train[:, 1]))
     # Plot project line
-    project_x = np.linspace(-0.01, 0.01, 30)
+    project_x = np.linspace(-1, 1, 30)
     project_slope = weight[1] / weight[0]
     # Through origin, hence b = 0
     project_intercept = 0

@@ -31,7 +31,7 @@ def computeConfusionMatrix(predict, answer, class_num, model_name, threshold=Non
                     prediction = 0
                 else:
                     prediction = 1
-            confusion_matrix[prediction][answer[data_idx][0]] += 1
+            confusion_matrix[prediction][int(answer[data_idx][0])] += 1
         elif model_name == 'BC':
             if class_num == 2:
                 if threshold is None:
