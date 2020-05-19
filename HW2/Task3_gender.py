@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import os
 import re
 
-LOWER_D = 3
+LOWER_D = 1
 PIC_COUNT = 10
 SHAPE = (400, 400)
 K = 5
 PROPORTIONAL = 0.8
+CLASS_NUM = 2
 
 
 def read_input_gender(filename, storedir, gender):
@@ -139,6 +140,7 @@ def checkperformance(targettest, predict):
         if targettest[i] == predict[i]:
             correct += 1
     print("Accuracy of PCA = {}  ({} / {})".format(correct / len(targettest), correct, len(targettest)))
+    computeConfusionMatrix(predict, targettest)
 
 
 def PCA(data):
@@ -149,6 +151,19 @@ def PCA(data):
     # print(eigen_vectors)
     print()
     return lower_dimension_data, eigen_vectors
+
+
+def computeConfusionMatrix(probability, answer, threshold=None):
+    """Compute confusion matrix based on predicted class and actual class."""
+    confusion_matrix = np.zeros((CLASS_NUM, CLASS_NUM))
+    for data_idx in range(len(probability)):
+        confusion_matrix[int(predict[data_idx])][int(answer[data_idx])] += 1
+    PD = confusion_matrix[1][1] / (confusion_matrix[0][1] + confusion_matrix[1][1]) if (confusion_matrix[0][1] + confusion_matrix[1][1]) != 0 else 0
+    FA = confusion_matrix[1][0] / (confusion_matrix[1][0] + confusion_matrix[0][0]) if (confusion_matrix[1][0] + confusion_matrix[0][0]) != 0 else 0
+    if threshold is None:
+        print("Confusion matrix:")
+        print(confusion_matrix)
+    return [FA, PD]
 
 
 if __name__ == '__main__':
@@ -170,16 +185,19 @@ if __name__ == '__main__':
     print("eigen vector shape = {}".format(eigen_vectors.shape))
     print("lower_dimension_data shape: {}".format(lower_dimension_data.shape))
 
+    predict = KNN(data_train, data_test, target_train)
+    checkperformance(target_test, predict)
+
     # reconstruct_data = np.matmul(lower_dimension_data, eigen_vectors.T)
     # print("reconstruct_data shape: {}".format(reconstruct_data.shape))
     # storedir = './task3_eigenface/'
     # draweigenface(storedir, eigen_vectors)
 
-    # # storedir = './task3_reconstruct/'
-    # # visualization(storedir, totalfile_train, reconstruct_data)
-    # lower_dimension_data_test = np.matmul(data_test, eigen_vectors)
-    # # lower_dimension_data_test, eigen_vectors_test = PCA(data_test)
-    # print("lower_dimension_data shape: {}".format(lower_dimension_data.shape))
-    # print("lower_dimension_data_test shape: {}".format(lower_dimension_data_test.shape))
-    # predict = KNN(lower_dimension_data, lower_dimension_data_test, target_train)
-    # checkperformance(target_test, predict)
+    # storedir = './task3_reconstruct/'
+    # visualization(storedir, totalfile_train, reconstruct_data)
+    lower_dimension_data_test = np.matmul(data_test, eigen_vectors)
+    # lower_dimension_data_test, eigen_vectors_test = PCA(data_test)
+    print("lower_dimension_data shape: {}".format(lower_dimension_data.shape))
+    print("lower_dimension_data_test shape: {}".format(lower_dimension_data_test.shape))
+    predict = KNN(lower_dimension_data, lower_dimension_data_test, target_train)
+    checkperformance(target_test, predict)

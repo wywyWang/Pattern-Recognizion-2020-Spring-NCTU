@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 import re
 
-LOWER_D = 500
+LOWER_D = 10
 K = 5
 
 
@@ -30,7 +30,7 @@ def read_input_face(filename, storedir):
                 data_test.append(each_image)
                 target_test.append(i)
                 totalfile_test.append(str(i) + str(j) + '.png')
-            if j < 5:
+            else:
                 data_train.append(each_image)
                 target_train.append(i)
                 totalfile_train.append(str(i) + str(j) + '.png')
