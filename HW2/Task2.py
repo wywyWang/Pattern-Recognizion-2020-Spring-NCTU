@@ -6,10 +6,10 @@ import naive_bayes_classifier as NBC
 from svmutil import *
 
 
-PROPORTIONAL = 0.8
+PROPORTIONAL = 0.6
 CLASS_NUM = 2
 K = 5
-LOWER_D = 2
+LOWER_D = 3
 
 
 def readData():
@@ -148,6 +148,69 @@ def PCA(data):
     return lower_dimension_data, eigen_vectors
 
 
+def computeConfusionMatrix(probability, answer, threshold=None):
+    """Compute confusion matrix based on predicted class and actual class."""
+    confusion_matrix = np.zeros((CLASS_NUM, CLASS_NUM))
+    for data_idx in range(len(probability)):
+        if threshold is None:
+            if probability[data_idx] <= 0:
+                predict = 1
+            else:
+                predict = 0
+        else:
+            if probability[data_idx] <= threshold:
+                predict = 1
+            else:
+                predict = 0
+        confusion_matrix[predict][int(answer[data_idx])] += 1
+    PD = confusion_matrix[1][1] / (confusion_matrix[0][1] + confusion_matrix[1][1]) if (confusion_matrix[0][1] + confusion_matrix[1][1]) != 0 else 0
+    FA = confusion_matrix[1][0] / (confusion_matrix[1][0] + confusion_matrix[0][0]) if (confusion_matrix[1][0] + confusion_matrix[0][0]) != 0 else 0
+    if threshold is None:
+        print("Confusion matrix:")
+        print(confusion_matrix)
+    return [FA, PD]
+
+
+def TestBest(x_train, y_train, x_test, y_test):
+    prob  = svm_problem(y_train, x_train)
+    param = svm_parameter('-s 0 -t {} -q'.format(0))          # 2 : rbf kernel
+    model = svm_train(prob, param)
+    prediction = svm_predict(y_test, x_test, model)
+    probability = []
+    predict_class = []
+    for i in range(len(prediction[2])):
+        predict_class.append(int(prediction[0][i]))
+        probability.append(prediction[2][i][0])
+    predict_class = np.array(predict_class)
+    probability = np.array(probability)
+    support_vectors = model.get_SV()
+    nr_sv = model.get_nr_sv()
+    print("# of support_vectors : {}".format(nr_sv))
+    return predict_class, probability, model
+
+
+def plotROC(total_probability, test_y, filename):
+    slices = 50
+    FA_PD = []
+    low = min(total_probability)
+    high = max(total_probability)
+    step = (abs(low) + abs(high)) / slices
+    thresholds = np.arange(low-step, high+step, step)
+    for threshold in thresholds:
+        FA_PD.append(computeConfusionMatrix(total_probability, test_y, threshold))
+    FA = [row[0] for row in FA_PD]
+    PD = [row[1] for row in FA_PD]
+    FA_x = np.linspace(0.0, 1.0, slices)
+    PD_interp = np.interp(FA_x, FA, PD)
+    # Plot ROC curve of testing data
+    fig = plt.figure()
+    plt.plot(FA_x, PD_interp)
+    plt.xlabel('FA')
+    plt.ylabel('PD')
+    fig.savefig('plotting/' + filename + '_svm_roc_testing.png')
+    return FA_x, PD_interp
+
+
 if __name__ == "__main__":
     # Preprocess selected data
     iris_train_x, iris_train_y, iris_test_x, iris_test_y, \
@@ -160,10 +223,9 @@ if __name__ == "__main__":
     # prior, train_mean, train_cov = NBC.train(iris_train_x.values, iris_train_y.values.ravel(), CLASS_NUM)
     # acc = NBC.test(iris_test_x.values, iris_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'iris_task2_ori', 'NBC', True)
 
-    # prob  = svm_problem(iris_train_y.values.ravel(), iris_train_x.values)
-    # param = svm_parameter('-s 0 -t {}'.format(2))          # 2 : rbf kernel
-    # model = svm_train(prob, param)
-    # prediction = svm_predict(iris_test_y.values.ravel(), iris_test_x.values, model)
+    # predict, probability, model = TestBest(iris_train_x.values, iris_train_y.values.ravel(), iris_test_x.values, iris_test_y.values.ravel())
+    # computeConfusionMatrix(probability, iris_test_y.values.ravel())
+    # plotROC(probability, iris_test_y.values.ravel(), 'iris_task2_ori_SVM')
 
     # print("===============")
 
@@ -178,20 +240,18 @@ if __name__ == "__main__":
     # prior, train_mean, train_cov = NBC.train(lower_dimension_data, iris_train_y.values.ravel(), CLASS_NUM)
     # acc = NBC.test(lower_dimension_data_test, iris_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'iris_task2', 'NBC', True)
 
-    # prob  = svm_problem(iris_train_y.values.ravel(), lower_dimension_data)
-    # param = svm_parameter('-s 0 -t {}'.format(2))          # 2 : rbf kernel
-    # model = svm_train(prob, param)
-    # prediction = svm_predict(iris_test_y.values.ravel(), lower_dimension_data_test, model)
+    # predict, probability, model = TestBest(lower_dimension_data, iris_train_y.values.ravel(), lower_dimension_data_test, iris_test_y.values.ravel())
+    # computeConfusionMatrix(probability, iris_test_y.values.ravel())
+    # plotROC(probability, iris_test_y.values.ravel(), 'iris_task2_low_SVM')
 
     print("=================== BREAST ==============")
     # Original data to classifier
     prior, train_mean, train_cov = NBC.train(breast_train_x.values, breast_train_y.values.ravel(), CLASS_NUM)
     acc = NBC.test(breast_test_x.values, breast_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'breast_task2_ori', 'NBC', True)
 
-    prob  = svm_problem(breast_train_y.values.ravel(), breast_train_x.values)
-    param = svm_parameter('-s 0 -t {}'.format(2))          # 2 : rbf kernel
-    model = svm_train(prob, param)
-    prediction = svm_predict(breast_test_y.values.ravel(), breast_test_x.values, model)
+    predict, probability, model = TestBest(breast_train_x.values, breast_train_y.values.ravel(), breast_test_x.values, breast_test_y.values.ravel())
+    computeConfusionMatrix(probability, breast_test_y.values.ravel())
+    plotROC(probability, breast_test_y.values.ravel(), 'breast_task2_ori_SVM')
 
     print("===============")
 
@@ -205,20 +265,34 @@ if __name__ == "__main__":
     prior, train_mean, train_cov = NBC.train(lower_dimension_data, breast_train_y.values.ravel(), CLASS_NUM)
     acc = NBC.test(lower_dimension_data_test, breast_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'breast_task2', 'NBC', True)
 
-    prob  = svm_problem(breast_train_y.values.ravel(), lower_dimension_data)
-    param = svm_parameter('-s 0 -t {}'.format(2))          # 2 : rbf kernel
-    model = svm_train(prob, param)
-    prediction = svm_predict(breast_test_y.values.ravel(), lower_dimension_data_test, model)
+    predict, probability, model = TestBest(lower_dimension_data, breast_train_y.values.ravel(), lower_dimension_data_test, breast_test_y.values.ravel())
+    computeConfusionMatrix(probability, breast_test_y.values.ravel())
+    plotROC(probability, breast_test_y.values.ravel(), 'breast_task2_low_SVM')
 
     # print("=================== IONOSPHERE ==============")
-    # ionosphere_train_x_selection, ionosphere_test_x_selection = featureSelection(ionosphere_train_x.values, ionosphere_train_y.values.ravel(), ionosphere_test_x.values)
-    # ionosphere_lower_dimension_train, ionosphere_lower_dimension_test = LDA.LDA(ionosphere_train_x_selection, ionosphere_train_y.values.ravel(), ionosphere_test_x_selection, ionosphere_test_y.values.ravel(), 'ionosphere')
+    # # Original data to classifier
     # prior, train_mean, train_cov = NBC.train(ionosphere_train_x.values, ionosphere_train_y.values.ravel(), CLASS_NUM)
-    # acc = NBC.test(ionosphere_test_x.values, ionosphere_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'ionosphere', 'NBC', True)
-    # # # Project to lower dimension
-    # # crossValidation(iris_lower_dimension_train, iris_train_y, CLASS_NUM, 'iris', 'NBC', K)        # BUG
-    # prior, train_mean, train_cov = NBC.train(ionosphere_lower_dimension_train, ionosphere_train_y.values.ravel(), CLASS_NUM)
-    # acc = NBC.test(ionosphere_lower_dimension_test, ionosphere_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'ionosphere_lower', 'NBC', True)
+    # acc = NBC.test(ionosphere_test_x.values, ionosphere_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'ionosphere_task2_ori', 'NBC', True)
+
+    # predict, probability, model = TestBest(ionosphere_train_x.values, ionosphere_train_y.values.ravel(), ionosphere_test_x.values, ionosphere_test_y.values.ravel())
+    # computeConfusionMatrix(probability, ionosphere_test_y.values.ravel())
+    # plotROC(probability, ionosphere_test_y.values.ravel(), 'ionosphere_task2_ori_SVM')
+
+    # print("===============")
+
+    # lower_dimension_data, eigen_vectors = PCA(ionosphere_train_x.values)
+    # lower_dimension_data_test = np.matmul(ionosphere_test_x.values, eigen_vectors)
+    # print("data shape = {}".format(ionosphere_train_x.values.shape))
+    # print("eigen vector shape = {}".format(eigen_vectors.shape))
+    # print("lower_dimension_data training shape: {}".format(lower_dimension_data.shape))
+    # print("lower_dimension_data testing shape: {}".format(lower_dimension_data_test.shape))
+
+    # prior, train_mean, train_cov = NBC.train(lower_dimension_data, ionosphere_train_y.values.ravel(), CLASS_NUM)
+    # acc = NBC.test(lower_dimension_data_test, ionosphere_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'ionosphere_task2', 'NBC', True)
+
+    # predict, probability, model = TestBest(lower_dimension_data, ionosphere_train_y.values.ravel(), lower_dimension_data_test, ionosphere_test_y.values.ravel())
+    # computeConfusionMatrix(probability, ionosphere_test_y.values.ravel())
+    # plotROC(probability, ionosphere_test_y.values.ravel(), 'ionosphere_task2_low_SVM')
 
     # print("=================== WINE ==============")
     # wine_train_x_selection, wine_test_x_selection = featureSelection(wine_train_x.values, wine_train_y.values.ravel(), wine_test_x.values)

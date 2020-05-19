@@ -178,14 +178,14 @@ if __name__ == "__main__":
     # iris_lower_dimension_train, iris_lower_dimension_test = LDA.LDA(iris_train_x_selection, iris_train_y.values.ravel(), iris_test_x_selection, iris_test_y.values.ravel(), 'iris')
     # prior, train_mean, train_cov = NBC.train(iris_train_x.values, iris_train_y.values.ravel(), CLASS_NUM)
     # acc = NBC.test(iris_test_x.values, iris_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'iris', 'NBC', True)
-    # train_weight = PC.train(iris_train_x.values, iris_train_y.values.ravel(), CLASS_NUM)
-    # acc = PC.test(iris_test_x.values, iris_test_y.values.ravel(), train_weight, CLASS_NUM, 'iris', 'PC', True)
-    # Project to lower dimension
-    # crossValidation(iris_lower_dimension_train, iris_train_y, CLASS_NUM, 'iris', 'NBC', K)        # BUG
+    # # train_weight = PC.train(iris_train_x.values, iris_train_y.values.ravel(), CLASS_NUM)
+    # # acc = PC.test(iris_test_x.values, iris_test_y.values.ravel(), train_weight, CLASS_NUM, 'iris', 'PC', True)
+    # # Project to lower dimension
+    # # crossValidation(iris_lower_dimension_train, iris_train_y, CLASS_NUM, 'iris', 'NBC', K)        # BUG
     # prior, train_mean, train_cov = NBC.train(iris_lower_dimension_train, iris_train_y.values.ravel(), CLASS_NUM)
     # acc = NBC.test(iris_lower_dimension_test, iris_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'iris_lower', 'NBC', True)
-    # train_weight = PC.train(iris_lower_dimension_train, iris_train_y.values.ravel(), CLASS_NUM)
-    # acc = PC.test(iris_lower_dimension_test, iris_test_y.values.ravel(), train_weight, CLASS_NUM, 'iris_lower', 'PC', True)
+    # # train_weight = PC.train(iris_lower_dimension_train, iris_train_y.values.ravel(), CLASS_NUM)
+    # # acc = PC.test(iris_lower_dimension_test, iris_test_y.values.ravel(), train_weight, CLASS_NUM, 'iris_lower', 'PC', True)
 
     # print("=================== BREAST ==============")
     # breast_train_x_selection, breast_test_x_selection = featureSelection(breast_train_x.values, breast_train_y.values.ravel(), breast_test_x.values)
@@ -210,22 +210,22 @@ if __name__ == "__main__":
     # prior, train_mean, train_cov = NBC.train(ionosphere_lower_dimension_train, ionosphere_train_y.values.ravel(), CLASS_NUM)
     # acc = NBC.test(ionosphere_lower_dimension_test, ionosphere_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'ionosphere_lower', 'NBC', True)
 
-    # print("=================== WINE ==============")
-    # wine_train_x_selection, wine_test_x_selection = featureSelection(wine_train_x.values, wine_train_y.values.ravel(), wine_test_x.values)
-    # wine_lower_dimension_train, wine_lower_dimension_test = LDA.LDA(wine_train_x_selection, wine_train_y.values.ravel(), wine_test_x_selection, wine_test_y.values.ravel(), 'wine')
-    # # prior, train_mean, train_cov = NBC.train(wine_train_x.values, wine_train_y.values.ravel(), CLASS_NUM)
-    # # acc = NBC.test(wine_test_x.values, wine_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'wine', 'NBC', True)
-    # # Pocket classifier
-    # # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'PC', K)
-    # train_weight = PC.train(wine_train_x.values, wine_train_y.values.ravel(), CLASS_NUM)
-    # acc = PC.test(wine_test_x.values, wine_test_y.values.ravel(), train_weight, CLASS_NUM, 'wine', 'PC', True)
+    print("=================== WINE ==============")
+    wine_train_x_selection, wine_test_x_selection = featureSelection(wine_train_x.values, wine_train_y.values.ravel(), wine_test_x.values)
+    wine_lower_dimension_train, wine_lower_dimension_test = LDA.LDA(wine_train_x_selection, wine_train_y.values.ravel(), wine_test_x_selection, wine_test_y.values.ravel(), 'wine')
+    # prior, train_mean, train_cov = NBC.train(wine_train_x.values, wine_train_y.values.ravel(), CLASS_NUM)
+    # acc = NBC.test(wine_test_x.values, wine_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'wine', 'NBC', True)
+    # Pocket classifier
+    # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'PC', K)
+    train_weight = PC.train(wine_train_x.values, wine_train_y.values.ravel(), CLASS_NUM)
+    acc = PC.test(wine_test_x.values, wine_test_y.values.ravel(), train_weight, CLASS_NUM, 'wine', 'PC', True)
     
-    # # # Project to lower dimension
-    # # # crossValidation(iris_lower_dimension_train, iris_train_y, CLASS_NUM, 'iris', 'NBC', K)        # BUG
-    # # prior, train_mean, train_cov = NBC.train(wine_lower_dimension_train, wine_train_y.values.ravel(), CLASS_NUM)
-    # # acc = NBC.test(wine_lower_dimension_test, wine_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'wine_lower', 'NBC', True)
+    # # Project to lower dimension
+    # # crossValidation(iris_lower_dimension_train, iris_train_y, CLASS_NUM, 'iris', 'NBC', K)        # BUG
+    # prior, train_mean, train_cov = NBC.train(wine_lower_dimension_train, wine_train_y.values.ravel(), CLASS_NUM)
+    # acc = NBC.test(wine_lower_dimension_test, wine_test_y.values.ravel(), prior, train_mean, train_cov, CLASS_NUM, 'wine_lower', 'NBC', True)
 
-    # # Pocket classifier
-    # # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'PC', K)
-    # train_weight = PC.train(wine_lower_dimension_train, wine_train_y.values.ravel(), CLASS_NUM)
-    # acc = PC.test(wine_lower_dimension_test, wine_test_y.values.ravel(), train_weight, CLASS_NUM, 'wine_lower', 'PC', True)
+    # Pocket classifier
+    # crossValidation(ionosphere_train_x, ionosphere_train_y, class_num, 'ionosphere', 'PC', K)
+    train_weight = PC.train(wine_lower_dimension_train, wine_train_y.values.ravel(), CLASS_NUM)
+    acc = PC.test(wine_lower_dimension_test, wine_test_y.values.ravel(), train_weight, CLASS_NUM, 'wine_lower', 'PC', True)
