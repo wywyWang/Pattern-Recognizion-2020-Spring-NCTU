@@ -3,7 +3,6 @@ import pandas as pd
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from scipy.cluster.hierarchy import dendrogram, linkage
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.datasets import make_circles, make_moons
 
