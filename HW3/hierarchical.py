@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.datasets import make_circles, make_moons
+from sklearn.metrics.cluster import adjusted_rand_score
 
 
 def clustering(data, method):
@@ -117,17 +118,26 @@ if __name__ == "__main__":
     # # Data 2
     # data_type = 'circles'
     # data = make_circles(n_samples=100, factor=0.5)
+    # # data[1][data == 0] = 2
+    # # data[1][data == 1] = 0
+    # # data[1][data == 2] = 1
     # link_type = 'single'
     # clusters = clustering(data[0], link_type)
     # visualization(data[0], clusters, link_type, data_type)
+    # ARI = adjusted_rand_score(clusters[len(clusters) - 2], data[1])
+    # print("{}'s ARI of {} link is: {}".format(data_type, link_type, ARI))
 
     # link_type = 'complete'
     # clusters = clustering(data[0], link_type)
     # visualization(data[0], clusters, link_type, data_type)
+    # ARI = adjusted_rand_score(clusters[len(clusters) - 2], data[1])
+    # print("{}'s ARI of {} link is: {}".format(data_type, link_type, ARI))
 
     # link_type = 'average'
     # clusters = clustering(data[0], link_type)
     # visualization(data[0], clusters, link_type, data_type)
+    # ARI = adjusted_rand_score(clusters[len(clusters) - 2], data[1])
+    # print("{}'s ARI of {} link is: {}".format(data_type, link_type, ARI))
 
     # Data 3
     data_type = 'moons'
@@ -135,11 +145,17 @@ if __name__ == "__main__":
     link_type = 'single'
     clusters = clustering(data[0], link_type)
     visualization(data[0], clusters, link_type, data_type)
+    ARI = adjusted_rand_score(clusters[len(clusters) - 2], data[1])
+    print("{}'s ARI of {} link is: {}".format(data_type, link_type, ARI))
 
     link_type = 'complete'
     clusters = clustering(data[0], link_type)
     visualization(data[0], clusters, link_type, data_type)
+    ARI = adjusted_rand_score(clusters[len(clusters) - 2], data[1])
+    print("{}'s ARI of {} link is: {}".format(data_type, link_type, ARI))
 
     link_type = 'average'
     clusters = clustering(data[0], link_type)
     visualization(data[0], clusters, link_type, data_type)
+    ARI = adjusted_rand_score(clusters[len(clusters) - 2], data[1])
+    print("{}'s ARI of {} link is: {}".format(data_type, link_type, ARI))

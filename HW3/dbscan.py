@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.datasets import make_circles, make_moons
+from sklearn.metrics.cluster import adjusted_rand_score
 
 
 RADIUS = 0.4
@@ -73,6 +74,8 @@ if __name__ == "__main__":
     data = make_circles(n_samples=100, factor=0.5)
     clusters = DBScan(data[0])
     visualization(data[0], clusters, data_type)
+    ARI = adjusted_rand_score(clusters, data[1])
+    print("{}'s ARI of dbscan is: {}".format(data_type, ARI))
 
 
     # Data 2
@@ -80,3 +83,5 @@ if __name__ == "__main__":
     data = make_moons(n_samples=100)
     clusters = DBScan(data[0])
     visualization(data[0], clusters, data_type)
+    ARI = adjusted_rand_score(clusters, data[1])
+    print("{}'s ARI of dbscan is: {}".format(data_type, ARI))
