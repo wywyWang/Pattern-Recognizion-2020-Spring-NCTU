@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import sys
+import time
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from sklearn.metrics.pairwise import pairwise_distances
@@ -8,8 +9,8 @@ from sklearn.datasets import make_circles, make_moons
 from sklearn.metrics.cluster import adjusted_rand_score
 
 
-RADIUS = 0.4
-MinPts = 5
+RADIUS = 0.3
+MinPts = 3
 
 
 def DBScan(data):
@@ -69,10 +70,13 @@ def visualization(data, clusters, data_type):
 
 
 if __name__ == "__main__":
+    NOISE = 0.06
     # Data 2
     data_type = 'circles'
-    data = make_circles(n_samples=100, factor=0.5)
+    data = make_circles(n_samples=100, factor=0.5, noise=NOISE)
+    before = time.time()
     clusters = DBScan(data[0])
+    print("cluster time {}".format(time.time() - before))
     visualization(data[0], clusters, data_type)
     ARI = adjusted_rand_score(clusters, data[1])
     print("{}'s ARI of dbscan is: {}".format(data_type, ARI))
@@ -80,8 +84,10 @@ if __name__ == "__main__":
 
     # Data 2
     data_type = 'moons'
-    data = make_moons(n_samples=100)
+    data = make_moons(n_samples=100, noise=NOISE)
+    before = time.time()
     clusters = DBScan(data[0])
+    print("cluster time {}".format(time.time() - before))
     visualization(data[0], clusters, data_type)
     ARI = adjusted_rand_score(clusters, data[1])
     print("{}'s ARI of dbscan is: {}".format(data_type, ARI))
